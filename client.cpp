@@ -86,7 +86,7 @@ void readClientInput(int sockFd, sockaddr_in serverAddress) {
     }
 }
 
-void updateClient(int sockFd) {
+[[noreturn]] void updateClient(int sockFd) {
     char recvBuf[LINE_MAX];
     while (true) {
         readline(sockFd, recvBuf, LINE_MAX);
