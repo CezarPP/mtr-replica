@@ -9,3 +9,5 @@ The client uses the `curses` library to display text similar to the `mtr` comman
 The server accepts connections from clients via TCP and sends them the data to print.
 
 The client gives an IP to the server, which, in turn, provides the client with a traceroute that is constantly updated.
+
+![Mtr-GIF](mtr-replica.gif)
