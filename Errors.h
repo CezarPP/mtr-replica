@@ -8,6 +8,10 @@
 #include <sys/time.h>
 #include <vector>
 #include <netdb.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
 
 #define LISTENQ 8
 #define SERVER_PORT 9878
@@ -17,7 +21,7 @@
 
 typedef sockaddr SA;
 
-void printHops(const std::vector<in_addr> &v) {
+[[maybe_unused]] void printHops(const std::vector<in_addr> &v) {
     for (int i = 0; i < (int) v.size(); i++) {
         const auto it = v[i];
         char addr[NI_MAXHOST];
@@ -114,7 +118,7 @@ int SetSockOpt(int fd, int level, int optname, const void *optval, socklen_t opt
 }
 
 size_t Sendto(int fd, const void *buf, size_t n, int flags, const SA *addr, socklen_t addrLen) {
-    size_t a = sendto(fd, buf, n, flags, addr, addrLen);
+    long a = sendto(fd, buf, n, flags, addr, addrLen);
     if (a < 0) {
         perror("Error calling sendto");
         exit(-1);
@@ -122,7 +126,7 @@ size_t Sendto(int fd, const void *buf, size_t n, int flags, const SA *addr, sock
     return a;
 }
 
-int Accept(int fd, SA *addr, socklen_t *addr_len) {
+[[maybe_unused]] int Accept(int fd, SA *addr, socklen_t *addr_len) {
     int n = accept(fd, addr, addr_len);
     if (n < 0) {
         perror("Error calling accept");
@@ -219,7 +223,7 @@ int Close(int fd) {
     return n;
 }
 
-pid_t Wait(int *statLock) {
+[[maybe_unused]]pid_t Wait(int *statLock) {
     pid_t pid = wait(statLock);
     if (pid < 0) {
         perror("Error calling wait");

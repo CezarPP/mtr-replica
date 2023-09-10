@@ -1,9 +1,9 @@
+#include "Errors.h"
 #include <iostream>
 #include <netinet/in.h>
 #include <cstring>
 #include <ncurses.h>
 #include <thread>
-#include "/home/cezar/Networks/ProjectBig/Server/Errors.h"
 
 using namespace std;
 

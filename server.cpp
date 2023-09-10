@@ -1,3 +1,4 @@
+#include "Errors.h"
 #include <iostream>
 #include <cstring>
 #include <sys/socket.h>
@@ -9,7 +10,6 @@
 #include <netinet/udp.h>
 #include <netdb.h>
 #include <vector>
-#include "Errors.h"
 
 #define BUF_SIZE 1500
 using namespace std;
@@ -172,8 +172,8 @@ int getRawSocket() {
 }
 
 struct UDP {
-    u_short seq, ttl;
-    timeval tv;
+    [[maybe_unused]] u_short seq, ttl;
+    [[maybe_unused]] timeval tv;
 };
 
 int traceRouteRecv(int recvFd, SA *recvSock, u_short sourcePort, u_short destPort, int seq, timeval *tv) {
@@ -313,7 +313,7 @@ vector<sockaddr_in> traceRoute(int sockFd, char *ip, vector<Stats> &stats, int &
 
     // sends UDP messages and receives ICMP
 
-    cout << "Tracing route\n";
+    // cout << "Tracing route\n";
     vector<sockaddr_in> v;
     if (!getSocketsForTraceRoute(ip)) {
         char errorToClient[LINE_MAX] = "IP address or domain name isn't valid\n";
@@ -400,7 +400,7 @@ void checkForClientInput(int sockFd, bool &sendingPings, bool &dnsOn,
     }
 }
 
-void processRequests(int sockFd) {
+[[noreturn]] void processRequests(int sockFd) {
     // executed as part of the child process that communicates with a single client
     char buf[LINE_MAX], bufToClient[LINE_MAX], ip[LINE_MAX];
     bool sendingPings = false, dnsOn = true;
@@ -527,7 +527,6 @@ int main() {
             // child process
             Close(listenFd);
             processRequests(connFd);
-            exit(0);
         }
         Close(connFd);
     }
