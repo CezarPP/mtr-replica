@@ -172,8 +172,8 @@ int getRawSocket() {
 }
 
 struct UDP {
-    [[maybe_unused]] u_short seq, ttl;
-    [[maybe_unused]] timeval tv;
+    u_short seq, ttl;
+    timeval tv;
 };
 
 int traceRouteRecv(int recvFd, SA *recvSock, u_short sourcePort, u_short destPort, int seq, timeval *tv) {

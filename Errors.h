@@ -31,7 +31,7 @@ typedef sockaddr SA;
     fflush(stdout);
 }
 
-int Socket(int family, int type, int protocol) {
+[[nodiscard]] int Socket(int family, int type, int protocol) {
     int sock = socket(family, type, protocol);
     if (sock < 0) {
         perror("Error calling socket function");
@@ -40,7 +40,7 @@ int Socket(int family, int type, int protocol) {
     return sock;
 }
 
-ssize_t Read(int fd, void *buf, size_t n) {
+[[nodiscard]] ssize_t Read(int fd, void *buf, size_t n) {
     size_t left = n;
     ssize_t haveRead;
     char *p = (char *) buf;
@@ -60,9 +60,9 @@ ssize_t Read(int fd, void *buf, size_t n) {
     return ssize_t(n - left);
 }
 
-int Select(int nfds, fd_set *readfds,
-           fd_set *writefds, fd_set *exceptfds,
-           struct timeval *timeout) {
+[[nodiscard]] int Select(int nfds, fd_set *readfds,
+                         fd_set *writefds, fd_set *exceptfds,
+                         struct timeval *timeout) {
     int n = select(nfds, readfds, writefds, exceptfds, timeout);
     if (n == -1) {
         perror("Error calling select");
@@ -71,7 +71,7 @@ int Select(int nfds, fd_set *readfds,
     return n;
 }
 
-ssize_t Write(int fd, const void *buf, size_t n) {
+void Write(int fd, const void *buf, size_t n) {
     size_t left = n;
     ssize_t haveWritten;
     const char *p = (const char *) buf;
@@ -87,46 +87,41 @@ ssize_t Write(int fd, const void *buf, size_t n) {
         left -= haveWritten;
         p += haveWritten;
     }
-    return (ssize_t) n;
 }
 
-int Bind(int fd, const SA *servAddress, socklen_t length) {
+void Bind(int fd, const SA *servAddress, socklen_t length) {
     int n = bind(fd, servAddress, length);
     if (n < 0) {
         perror("Error calling bind");
         exit(-1);
     }
-    return n;
 }
 
-int Listen(int fd, int n) {
+void Listen(int fd, int n) {
     int r = listen(fd, n);
     if (r < 0) {
         perror("Error calling listen");
         exit(-1);
     }
-    return r;
 }
 
-int SetSockOpt(int fd, int level, int optname, const void *optval, socklen_t optlen) {
+void SetSockOpt(int fd, int level, int optname, const void *optval, socklen_t optlen) {
     int n = setsockopt(fd, level, optname, optval, optlen);
     if (n < 0) {
         perror("Error calling setsockopt");
         exit(-1);
     }
-    return n;
 }
 
-size_t Sendto(int fd, const void *buf, size_t n, int flags, const SA *addr, socklen_t addrLen) {
+void Sendto(int fd, const void *buf, size_t n, int flags, const SA *addr, socklen_t addrLen) {
     long a = sendto(fd, buf, n, flags, addr, addrLen);
-    if (a < 0) {
+    if (a < 0 || a != n) {
         perror("Error calling sendto");
         exit(-1);
     }
-    return a;
 }
 
-[[maybe_unused]] int Accept(int fd, SA *addr, socklen_t *addr_len) {
+[[maybe_unused]] [[nodiscard]]int Accept(int fd, SA *addr, socklen_t *addr_len) {
     int n = accept(fd, addr, addr_len);
     if (n < 0) {
         perror("Error calling accept");
@@ -135,16 +130,15 @@ size_t Sendto(int fd, const void *buf, size_t n, int flags, const SA *addr, sock
     return n;
 }
 
-int GetTimeOfDay(timeval *tv, void *tz) {
+void GetTimeOfDay(timeval *tv, void *tz) {
     int n = gettimeofday(tv, tz);
     if (n < 0) {
         perror("Error calling gettimeofday");
         exit(-1);
     }
-    return n;
 }
 
-uint16_t in_cksum(uint16_t *addr, int len) {
+[[nodiscard]] uint16_t in_cksum(uint16_t *addr, int len) {
     int nleft = len;
     uint32_t sum = 0;
     uint16_t *w = addr;
@@ -165,16 +159,15 @@ uint16_t in_cksum(uint16_t *addr, int len) {
     return answer;
 }
 
-int Connect(int fd, const SA *addr, socklen_t len) {
+void Connect(int fd, const SA *addr, socklen_t len) {
     int n = connect(fd, addr, len);
     if (n < 0) {
         perror("Error calling connect");
         exit(-1);
     }
-    return n;
 }
 
-ssize_t readline(int fd, void *buf, size_t maxLen) {
+void readline(int fd, void *buf, size_t maxLen) {
     ssize_t i, rc;
     char c;
     char *p = (char *) buf;
@@ -185,7 +178,7 @@ ssize_t readline(int fd, void *buf, size_t maxLen) {
                 break;
         } else if (rc == 0) {
             *p = '\0';
-            return i - 1;
+            return;
         } else {
             if (errno == EINTR)
                 i--;
@@ -196,7 +189,6 @@ ssize_t readline(int fd, void *buf, size_t maxLen) {
         }
     }
     *p = '\0';
-    return i;
 }
 
 void addEndLine(char *s) {
@@ -205,7 +197,7 @@ void addEndLine(char *s) {
     s[n + 1] = '\0';
 }
 
-int Fork() {
+[[nodiscard]] int Fork() {
     pid_t pid = fork();
     if (pid < 0) {
         perror("Error calling fork");
@@ -214,16 +206,15 @@ int Fork() {
     return pid;
 }
 
-int Close(int fd) {
+void Close(int fd) {
     int n = close(fd);
     if (n < 0) {
         perror("Error calling close");
         exit(-1);
     }
-    return n;
 }
 
-[[maybe_unused]]pid_t Wait(int *statLock) {
+[[maybe_unused]][[nodiscard]] pid_t Wait(int *statLock) {
     pid_t pid = wait(statLock);
     if (pid < 0) {
         perror("Error calling wait");
@@ -232,13 +223,12 @@ int Close(int fd) {
     return pid;
 }
 
-const char *Inet_ntop(int af, const void *cp, char *buf, socklen_t len) {
+void Inet_ntop(int af, const void *cp, char *buf, socklen_t len) {
     const char *n = inet_ntop(af, cp, buf, len);
     if (n == nullptr) {
         perror("Error calling inet_ntop");
         exit(-1);
     }
-    return n;
 }
 
 int Inet_pton(int af, const char *cp, void *buf) {
